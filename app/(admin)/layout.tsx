@@ -7,7 +7,7 @@ function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
       <Header />
       <div className="flex flex-col md:flex-row flex-1">
         <Sidebar />
-        <div className="bg-yellow-500 flex-1">{children}</div>
+        <div className="bg-gray-200 flex-1">{children}</div>
         {/* flex and justify-center is supposed to be on the div above; also lg:justify-start, items-start, max-w-5xl mx-auto w-full */}
       </div>
     </div>
