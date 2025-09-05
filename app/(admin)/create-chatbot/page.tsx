@@ -32,5 +32,3 @@ function CreateChatbot() {
   );
 }
 export default CreateChatbot;
-
-// items-center justify-center md:flex-row md:space-x-10 p-10 rounded-md m-10
