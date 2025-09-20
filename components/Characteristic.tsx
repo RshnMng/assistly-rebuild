@@ -57,5 +57,3 @@ function Characteristic({
   );
 }
 export default Characteristic;
-
-//w-6 h-6 text-white fill-red-500 absolute top-1 right-1 cursor-pointer hover:opacity-50"

@@ -26,7 +26,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
   });
 
   const [deleteChatbot] = useMutation(DELETE_CHATBOT, {
-    refetchQueries: ["GetChatBotById"],
+    refetchQueries: ["GetChatbotById"],
     awaitRefetchQueries: true,
   });
 
@@ -69,12 +69,12 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         success: "Chatbot Successfully Deleted",
         error: "Failed to Delete Chatbot",
       });
+
+      console.log(promise, "promise");
     } catch (error) {
       console.error("Error deleting chatbot:", error);
       toast.error("Failed to Delete Chatbot");
     }
-
-    // redirect to view-chatbot page
   };
 
   useEffect(() => {
@@ -97,6 +97,9 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
     );
 
   if (error) return <p>Error: {error.message}</p>;
+  if (!data?.chatbots) {
+    return redirect("/view-chatbots");
+  }
 
   return (
     <div className="px-0 md:p-10">
