@@ -11,15 +11,41 @@ import Avatar from "@/components/Avatar";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { GET_CHATBOT_BY_ID } from "@/app/api/graphql/queries/quieres";
 import { GetChatbotByIdResponse, GetChatbotByIdVariables } from "@/types/types";
+import Characteristic from "@/components/Characteristic";
+import { DELETE_CHATBOT } from "@/app/api/graphql/mutations/mutations";
 
 function EditChatbot({ params: { id } }: { params: { id: string } }) {
   const [url, setUrl] = useState<string>("");
   const [chatbotName, setChatbotName] = useState<string>("");
+  const [newCharacteristic, setNewCharacteristic] = useState<string>("");
+  const [deleteChatbot] = useMutation(DELETE_CHATBOT, {
+    refetchQueries: ["GetChatBotById"],
+  });
 
   const { data, loading, error } = useQuery<
     GetChatbotByIdResponse,
     GetChatbotByIdVariables
   >(GET_CHATBOT_BY_ID, { variables: { id } });
+
+  const handleDelete = async (id: string) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this chatbot?"
+    );
+
+    if (!isConfirmed) return;
+
+    try {
+      const promise = deleteChatbot({ variables: { id } });
+      toast.promise(promise, {
+        loading: "Deleting...",
+        success: "Chatbot Successfully Deleted",
+        error: "Failed to Delete Chatbot",
+      });
+    } catch (error) {
+      console.error("Error deleting chatbot:", error);
+      toast.error("Failed to Delete Chatbot");
+    }
+  };
 
   useEffect(() => {
     if (data) {
@@ -32,6 +58,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
 
     setUrl(url);
   }, [id]);
+
   return (
     <div className="px-0 md:p-10">
       <div className="md:sticky md:top-0 z-50 sm:max-w-sm ml-auto space-y-2 md:border p-5 rounded-b-lg md:rounded-lg bg-[#2991EE]">
@@ -65,13 +92,63 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         <Button
           variant="destructive"
           className="absolute top-2 right-2 h-8 w-2"
-          // onClick={() => handleDelete(id)}
+          onClick={() => handleDelete(id)}
         >
           X
         </Button>
 
-        <div>
+        <div className="flex space-x-4">
           <Avatar seed={chatbotName} />
+          <form
+            // onSubmit={handleUpdateChatbot}
+            className="flex flex-1 space-x-2 items-center"
+          >
+            <Input
+              value={chatbotName}
+              onChange={(e) => setChatbotName(e.target.value)}
+              placeholder="Chatbot Name..."
+              className="w-full border-none bg-transparent text-xl font-bold"
+              required
+            />
+            <Button type="submit" disabled={!chatbotName}>
+              Update
+            </Button>
+          </form>
+        </div>
+        <h2 className="text-xl font-bold mt-10">
+          Here's what your AI knows...
+        </h2>
+        <p>
+          Your chatbot is equipped with the following information to assist you
+          in your conversations with your customers & users
+        </p>
+
+        <div>
+          <form>
+            <Input
+              type="text"
+              placeholder="Example: If a customer asks for prices, provide pricing page: www.example.com/pricing"
+              value={newCharacteristic}
+              onChange={(e) => setNewCharacteristic(e.target.value)}
+            />
+            <Button type="submit" disabled={!newCharacteristic}>
+              Add
+            </Button>
+          </form>
+
+          <ul className="flex flex-wrap-reverse gap-5">
+            {data?.chatbots?.chatbot_characteristics?.map(
+              (characteristic, index) => {
+                return (
+                  <Characteristic
+                    key={characteristic.id}
+                    characteristic={characteristic}
+                    index={index}
+                  />
+                );
+              }
+            )}
+          </ul>
         </div>
       </section>
     </div>
