@@ -13,19 +13,45 @@ import { GET_CHATBOT_BY_ID } from "@/app/api/graphql/queries/quieres";
 import { GetChatbotByIdResponse, GetChatbotByIdVariables } from "@/types/types";
 import Characteristic from "@/components/Characteristic";
 import { DELETE_CHATBOT } from "@/app/api/graphql/mutations/mutations";
+import { ADD_CHARACTERISTIC } from "@/app/api/graphql/mutations/mutations";
+import { redirect } from "next/navigation";
 
 function EditChatbot({ params: { id } }: { params: { id: string } }) {
   const [url, setUrl] = useState<string>("");
   const [chatbotName, setChatbotName] = useState<string>("");
   const [newCharacteristic, setNewCharacteristic] = useState<string>("");
+
+  const [addCharacteristic] = useMutation(ADD_CHARACTERISTIC, {
+    refetchQueries: ["GetChatbotById"],
+  });
+
   const [deleteChatbot] = useMutation(DELETE_CHATBOT, {
     refetchQueries: ["GetChatBotById"],
+    awaitRefetchQueries: true,
   });
 
   const { data, loading, error } = useQuery<
     GetChatbotByIdResponse,
     GetChatbotByIdVariables
   >(GET_CHATBOT_BY_ID, { variables: { id } });
+
+  const handleAddCharactaristic = async (content: string) => {
+    try {
+      const promise = addCharacteristic({
+        variables: {
+          chatbotId: Number(id),
+          content,
+        },
+      });
+      toast.promise(promise, {
+        loading: "Adding...",
+        success: "Information added",
+        error: "Failed to add Information",
+      });
+    } catch (err) {
+      console.error("Failed to add characteristic", err);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     const isConfirmed = window.confirm(
@@ -45,6 +71,8 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
       console.error("Error deleting chatbot:", error);
       toast.error("Failed to Delete Chatbot");
     }
+
+    // redirect to view-chatbot page
   };
 
   useEffect(() => {
@@ -58,6 +86,15 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
 
     setUrl(url);
   }, [id]);
+
+  if (loading)
+    return (
+      <div className=" fixed inset-0 flex items-center justify-center ">
+        <Avatar seed="PAPAFAM Support Agent" className="animate-spin mx-auto" />
+      </div>
+    );
+
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
     <div className="px-0 md:p-10">
@@ -124,7 +161,13 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         </p>
 
         <div>
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddCharactaristic(newCharacteristic);
+              setNewCharacteristic("");
+            }}
+          >
             <Input
               type="text"
               placeholder="Example: If a customer asks for prices, provide pricing page: www.example.com/pricing"
@@ -156,3 +199,5 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
 }
 
 export default EditChatbot;
+
+//
