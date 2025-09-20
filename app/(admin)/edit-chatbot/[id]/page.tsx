@@ -91,7 +91,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
 
   if (loading)
     return (
-      <div className=" fixed inset-0 flex items-center justify-center ">
+      <div className=" flex items-center justify-center h-full w-full ">
         <Avatar seed="PAPAFAM Support Agent" className="animate-spin mx-auto" />
       </div>
     );
