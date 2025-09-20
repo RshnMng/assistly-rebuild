@@ -41,8 +41,10 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         variables: {
           chatbotId: Number(id),
           content,
+          created_at: new Date().toISOString(),
         },
       });
+
       toast.promise(promise, {
         loading: "Adding...",
         success: "Information added",
