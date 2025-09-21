@@ -76,3 +76,6 @@ export const UPDATE_CHATBOT = gql`
 // clerk.browser.js:16 Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
 // warnOnce	@	clerk.browser.js:16
 // load	@	clerk.browser.js:1
+
+// make id of chatbot not be a number make a uuid so its a random stream of characters
+//so when a bunch of people use it its a lot more secure
