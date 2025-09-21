@@ -52,12 +52,27 @@ export const ADD_CHARACTERISTIC = gql`
   }
 `;
 
-// //mutation AddCharacteristics {
-//   insertChatbot_characteristics(
-//     content: "yoooo"
-//     created_at: "2025-09-18T20:32:10.123Z"
-//     chatbot_id: 20
-//   ) {
-//     id
-//   }
-// }
+export const UPDATE_CHATBOT = gql`
+  mutation UpdateChatbot(
+    $id: Int!
+    $name: String!
+    $created_at: DateTime!
+    $clerk_user_id: String!
+  ) {
+    updateChatbots(
+      id: $id
+      name: $name
+      created_at: $created_at
+      clerk_user_id: $clerk_user_id
+    ) {
+      id
+      name
+      created_at
+      clerk_user_id
+    }
+  }
+`;
+
+// clerk.browser.js:16 Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview
+// warnOnce	@	clerk.browser.js:16
+// load	@	clerk.browser.js:1

@@ -33,6 +33,7 @@ function Characteristic({
 
   return (
     <li
+      key={characteristic.id}
       className={
         index === 0
           ? "w-full relative p-8 bg-white border rounded-md"

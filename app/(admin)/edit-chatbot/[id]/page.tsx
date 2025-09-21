@@ -12,14 +12,21 @@ import { useQuery, useMutation } from "@apollo/client/react";
 import { GET_CHATBOT_BY_ID } from "@/app/api/graphql/queries/quieres";
 import { GetChatbotByIdResponse, GetChatbotByIdVariables } from "@/types/types";
 import Characteristic from "@/components/Characteristic";
-import { DELETE_CHATBOT } from "@/app/api/graphql/mutations/mutations";
+import {
+  DELETE_CHATBOT,
+  UPDATE_CHATBOT,
+} from "@/app/api/graphql/mutations/mutations";
 import { ADD_CHARACTERISTIC } from "@/app/api/graphql/mutations/mutations";
+
 import { redirect } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 function EditChatbot({ params: { id } }: { params: { id: string } }) {
   const [url, setUrl] = useState<string>("");
   const [chatbotName, setChatbotName] = useState<string>("");
   const [newCharacteristic, setNewCharacteristic] = useState<string>("");
+
+  const { user } = useUser();
 
   const [addCharacteristic] = useMutation(ADD_CHARACTERISTIC, {
     refetchQueries: ["GetChatbotById"],
@@ -28,6 +35,10 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
   const [deleteChatbot] = useMutation(DELETE_CHATBOT, {
     refetchQueries: ["GetChatbotById"],
     awaitRefetchQueries: true,
+  });
+
+  const [updateChabot] = useMutation(UPDATE_CHATBOT, {
+    refetchQueries: ["GetChatbotById"],
   });
 
   const { data, loading, error } = useQuery<
@@ -74,6 +85,29 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
     } catch (error) {
       console.error("Error deleting chatbot:", error);
       toast.error("Failed to Delete Chatbot");
+    }
+  };
+
+  const handleUpdateChatbot = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const promise = updateChabot({
+        variables: {
+          id,
+          name: chatbotName,
+          created_at: new Date().toISOString(),
+          clerk_user_id: user?.id,
+        },
+      });
+
+      toast.promise(promise, {
+        loading: "Updating...",
+        success: "Chatbot Name Successfully Updated!",
+        error: "Failed to Update Chatbot",
+      });
+    } catch (err) {
+      console.error("Failed to update chatbot", err);
     }
   };
 
@@ -142,7 +176,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         <div className="flex space-x-4">
           <Avatar seed={chatbotName} />
           <form
-            // onSubmit={handleUpdateChatbot}
+            onSubmit={handleUpdateChatbot}
             className="flex flex-1 space-x-2 items-center"
           >
             <Input
@@ -165,16 +199,18 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
           in your conversations with your customers & users
         </p>
 
-        <div>
+        <div className="bg-gray-400 p-5 md:p-5 rounded-md mt-5">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleAddCharactaristic(newCharacteristic);
               setNewCharacteristic("");
             }}
+            className="flex space-x-2 mb-5"
           >
             <Input
               type="text"
+              className="bg-white"
               placeholder="Example: If a customer asks for prices, provide pricing page: www.example.com/pricing"
               value={newCharacteristic}
               onChange={(e) => setNewCharacteristic(e.target.value)}
